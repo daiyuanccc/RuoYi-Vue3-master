@@ -1,0 +1,6 @@
+.elcolFlex { display: flex; gap: 15px; flex-wrap: wrap; }
+.tableHead { display: flex; padding: 10px; background: #f5f7fa; font-weight: bold; }
+.tableHead > div { flex: 1; text-align: center; }
+.tableBody { margin-top: 10px; }
+.tableColumn { display: flex; align-items: center; margin-bottom: 10px; }
+.column { flex: 1; padding: 0 5px; }
