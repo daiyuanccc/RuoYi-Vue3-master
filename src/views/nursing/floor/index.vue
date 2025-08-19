@@ -383,6 +383,7 @@ const handleRoomAddSubmit = async (val) => {
 const handleRoomData = async (id) => {
   const res = await getRoomDetails(id);
   if (res.code === 200) {
+    console.log('获取到的房间详情:', res.data);
     roomData.value = res.data;
   }
 };
@@ -414,10 +415,16 @@ const handleRoomAdd = () => {
   getHouseType();
 };
 // 编辑房间
-const handleRoomEdit = (id) => {
+const handleRoomEdit = async (id) => {
   textEdit();
   roomId.value = id;
-  handleRoomData(id); // 打开编辑，获取房间详情
+  
+  // 确保房型数据已加载
+  await getHouseType();
+  
+  // 获取房间详情
+  await handleRoomData(id);
+  
   roomVisible.value = true;
 };
 // // 查看房间
@@ -442,6 +449,8 @@ const handleBedAddSubmit = async (val) => {
     roomId: roomId.value,
   };
   const res = await addBed(params);
+  console.log('新增床位参数:', params);
+
   if (res.code === 200) {
     getRoomListData();
     handleBedClose();
@@ -484,6 +493,11 @@ const handleBedDeleteSubmit = async () => {
 const handleBedAdd = (id) => {
   roomId.value = id;
   textAdd();
+  // 确保新增时清空所有数据
+  bedData.value = {
+    bedNumber: '',
+    sort: 1
+  };
   bedVisible.value = true;
 };
 // 床位编辑

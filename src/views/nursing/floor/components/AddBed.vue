@@ -154,6 +154,8 @@ const handleClear = () => {
   // 重置表单
   formRef.value.resetFields();
   formData.value.sort = 1;
+  // 明确清空id字段
+  delete formData.value.id;
 };
 // 点击取消关闭
 const onClickCloseBtn = () => {

@@ -31,6 +31,7 @@
               clearable
               filterable
               placeholder="请选择"
+              @change="handleTypeChange" 
             >
               <el-option
                 v-for="(item, index) in roomTypeData"
@@ -120,10 +121,12 @@ const emit = defineEmits([
 const resetType = ref('empty') // 重置表单
 const formVisible = ref(false) // 弹窗
 const formRef = ref(null)
-// 表单数据
+
+// 房间表单数据
 const formData = ref({
   code: '',
   sort: 1,
+  typeId: '',
   typeName: ''
 })
 // 表单校验
@@ -160,15 +163,32 @@ watch(props, (val) => {
   formVisible.value = val.visible
   pageTitle.value = val.title
 })
-// 监听器，监听父级传递的data值，控制表单数据
+// 监听器，监听父级传递的data值和roomTypeData值，确保数据完整后回显
 watch(
-  () => props.data,
-  (val) => {
-    formData.value.id = val.id
-    formData.value.typeName = val.typeName
-    formData.value.sort = val.sort
-    formData.value.code = val.code
-  }
+  [() => props.data, () => props.roomTypeData],
+  ([newData, newRoomTypes]) => {
+    if (newData && Object.keys(newData).length > 0) {
+      formData.value.id = newData.id
+      formData.value.sort = newData.sort
+      formData.value.code = newData.code
+      
+      // 确保房型数据已加载
+      if (newRoomTypes && newRoomTypes.length > 0 && newData.typeId) {
+        const roomType = newRoomTypes.find(item => item.id === newData.typeId)
+        if (roomType) {
+          formData.value.typeId = roomType.id
+          formData.value.typeName = roomType.name
+        } else {
+          formData.value.typeId = newData.typeId
+          formData.value.typeName = newData.typeName || ''
+        }
+      } else {
+        formData.value.typeId = newData.typeId
+        formData.value.typeName = newData.typeName || ''
+      }
+    }
+  },
+  { immediate: true, deep: true }
 )
 // -----定义方法------
 // 提交表单
@@ -212,4 +232,11 @@ const textBlurNo = () => {
 defineExpose({
   handleClear
 })
+// 处理房间类型选择变化
+const handleTypeChange = (selectedName) => {
+  const selectedType = props.roomTypeData.find(item => item.name === selectedName)
+  if (selectedType) {
+    formData.value.typeId = selectedType.id
+  }
+}
 </script>
