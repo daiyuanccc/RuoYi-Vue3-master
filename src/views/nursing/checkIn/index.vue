@@ -77,6 +77,7 @@
 
 <script setup name="CheckIn">
 import { listCheckIn  } from "@/api/nursing/checkIn";
+import { watch } from 'vue'
 
 const { proxy } = getCurrentInstance();
 
@@ -149,6 +150,7 @@ const toDetails = () => {
   proxy.$router.push({ path: "/enterQuit/checkInInfo" });
 }
 
+
 /** 查询入住列表 */
 function getList() {
   loading.value = true;
@@ -208,5 +210,24 @@ function resetQuery() {
 // watch(route,(to,from) => {
 //   proxy.$router.go(0);
 // })
+// 监听路由query参数变化，当检测到refresh参数时重新加载数据
+watch(
+  () => route.query.refresh,
+  (newVal) => {
+    if (newVal) {
+      getList()
+    }
+  }
+)
+
+// 监听路由路径变化，当从其他页面返回到列表页时重新加载数据
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (newPath === '/enterQuit/checkIn' && oldPath !== '/enterQuit/checkIn') {
+      getList()
+    }
+  }
+)
 getList();
 </script>

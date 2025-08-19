@@ -1,6 +1,6 @@
 <template>
     <div class="info">
-        <h3>签约办理</h3>
+        <h3 class="section-title">签约办理</h3>
         <el-row gutter="15">
             <el-col :span="12">
                 <el-form-item label="合同名称" prop="contractName">

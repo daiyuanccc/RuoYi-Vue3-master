@@ -10,8 +10,9 @@
             </el-col>
             <el-col :span="12">
                 <el-form-item label="身份证号" prop="idCardNo">
-                    <el-input v-model="formData.idCardNo" type="text" :readonly="type === 'read'" placeholder="请输入身份证号" clearable
-                        :style="{ width: '100%' }"></el-input>
+                    <el-input v-model="formData.idCardNo" type="text" :readonly="type === 'read'" 
+                        placeholder="请输入身份证号" clearable :style="{ width: '100%' }"
+                        @blur="handleIdCardBlur"></el-input>
                 </el-form-item>
             </el-col>
 
@@ -19,14 +20,15 @@
         <el-row gutter="15">
             <el-col :span="12">
                 <el-form-item label="出生日期" prop="birthday">
-                    <el-date-picker v-model="formData.birthday" :readonly="type == 'read'" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+                    <el-date-picker v-model="formData.birthday" :readonly="type == 'read'" 
+                        format="YYYY-MM-DD" value-format="YYYY-MM-DD"
                         :style="{ width: '100%' }" placeholder="请选择出生日期" clearable></el-date-picker>
                 </el-form-item>
             </el-col>
             <el-col :span="12">
                 <el-form-item label="年龄" prop="age">
-                    <el-input v-model="formData.age" type="text" :readonly="type == 'read'" placeholder="请输入年龄" clearable
-                        :style="{ width: '100%' }"></el-input>
+                    <el-input v-model="formData.age" type="text" :readonly="type == 'read'" 
+                        placeholder="请输入年龄" clearable :style="{ width: '100%' }"></el-input>
                 </el-form-item>
             </el-col>
 
@@ -42,8 +44,8 @@
             </el-col>
             <el-col :span="12">
                 <el-form-item label="联系方式" prop="phone">
-                    <el-input v-model="formData.phone" type="text" :readonly="type == 'read'" placeholder="请输入联系方式" clearable
-                        :style="{ width: '100%' }"></el-input>
+                    <el-input v-model="formData.phone" type="text" :readonly="type == 'read'" 
+                        placeholder="请输入联系方式" clearable :style="{ width: '100%' }"></el-input>
                 </el-form-item>
             </el-col>
 
@@ -51,7 +53,8 @@
         <el-row gutter="15">
             <el-col :span="12">
                 <el-form-item label="家庭住址" prop="address">
-                    <el-input v-model="formData.address" type="textarea" :readonly="type == 'read'" placeholder="请输入家庭住址"
+                    <el-input v-model="formData.address" type="textarea" :readonly="type == 'read'" 
+                        placeholder="请输入家庭住址"
                         :autosize="{ minRows: 4, maxRows: 4 }" :style="{ width: '100%' }"></el-input>
                 </el-form-item>
             </el-col>
@@ -222,6 +225,143 @@ const props = defineProps({
 watch(props,()=>{
   formData.value = props.applyFormInfo;
 },{ immediate: true })
+
+// 监听身份证号码变化，自动更新相关数据
+watch(() => formData.value.idCardNo, (newIdCard, oldIdCard) => {
+  if (props.type === 'read') {
+    return;
+  }
+
+  if (!newIdCard) {
+    return;
+  }
+
+  const parsedInfo = parseIdCard(newIdCard);
+  if (parsedInfo) {
+    // 自动填充出生日期
+    if (!formData.value.birthday || oldIdCard) {
+      formData.value.birthday = parsedInfo.birthday;
+    }
+    
+    // 自动填充性别
+    if (!formData.value.sex || formData.value.sex === 0 || oldIdCard) {
+      formData.value.sex = parsedInfo.sex;
+    }
+    
+    // 自动填充年龄
+    if (!formData.value.age || oldIdCard) {
+      formData.value.age = parsedInfo.age;
+    }
+  }
+})
+
+/**
+ * @name: 根据身份证号解析出生日期、性别和年龄
+ * @description: 解析身份证号码，自动填充出生日期、性别和年龄
+ * @param {string} idCard 身份证号码
+ * @return {object} 解析结果
+ */
+function parseIdCard(idCard) {
+    if (!idCard || typeof idCard !== 'string') {
+        return null;
+    }
+
+    // 去除空格
+    idCard = idCard.trim();
+    
+    // 验证身份证号格式（15位或18位）
+    const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+    if (!reg.test(idCard)) {
+        return null;
+    }
+
+    let birthday = null;
+    let sex = null;
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    try {
+        if (idCard.length === 15) {
+            // 15位身份证
+            const year = '19' + idCard.substring(6, 8);
+            const month = idCard.substring(8, 10);
+            const day = idCard.substring(10, 12);
+            birthday = `${year}-${month}-${day}`;
+            
+            // 15位身份证性别位是最后一位
+            const sexCode = parseInt(idCard.substring(14, 15));
+            sex = sexCode % 2 === 0 ? 0 : 1;
+        } else if (idCard.length === 18) {
+            // 18位身份证
+            const year = idCard.substring(6, 10);
+            const month = idCard.substring(10, 12);
+            const day = idCard.substring(12, 14);
+            birthday = `${year}-${month}-${day}`;
+            
+            // 18位身份证性别位是倒数第二位
+            const sexCode = parseInt(idCard.substring(16, 17));
+            sex = sexCode % 2 === 0 ? 0 : 1;
+        }
+
+        // 计算年龄
+        const birthDate = new Date(birthday);
+        let age = currentYear - birthDate.getFullYear();
+        
+        // 如果今年的生日还没到，年龄减1
+        const birthMonth = birthDate.getMonth();
+        const birthDay = birthDate.getDate();
+        const currentMonth = now.getMonth();
+        const currentDay = now.getDate();
+        
+        if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)) {
+            age--;
+        }
+
+        return {
+            birthday: birthday,
+            sex: sex,
+            age: age.toString()
+        };
+    } catch (error) {
+        console.error('身份证解析错误:', error);
+        return null;
+    }
+}
+
+/**
+ * @name: 身份证输入框失去焦点事件处理
+ * @description: 当身份证输入框失去焦点时，自动解析并填充相关信息
+ * @return {*}
+ */
+function handleIdCardBlur() {
+    // 如果处于只读模式，不处理
+    if (props.type === 'read') {
+        return;
+    }
+
+    const idCard = formData.value.idCardNo;
+    if (!idCard) {
+        return;
+    }
+
+    const parsedInfo = parseIdCard(idCard);
+    if (parsedInfo) {
+        // 自动填充出生日期
+        if (!formData.value.birthday) {
+            formData.value.birthday = parsedInfo.birthday;
+        }
+        
+        // 自动填充性别
+        if (!formData.value.sex || formData.value.sex === 0) {
+            formData.value.sex = parsedInfo.sex;
+        }
+        
+        // 自动填充年龄
+        if (!formData.value.age) {
+            formData.value.age = parsedInfo.age;
+        }
+    }
+}
 
 /**
  * @name: 上传之前的文件判断

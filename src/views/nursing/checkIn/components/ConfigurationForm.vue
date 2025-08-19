@@ -1,6 +1,6 @@
 <template>
     <div class="info">
-        <h3>入住配置</h3>
+        <h3 class="section-title">入住配置</h3>
         <el-row gutter="15">
             <el-col :span="12">
                 <el-form-item label="入住期限" prop="checkInTime">
@@ -90,12 +90,8 @@
 </template>
 <script setup>
 import { getLevelAll } from '@/api/nursing/level'
-
 import { getFloorBed, getRootById } from '@/api/nursing/floor'
-import {
-    ElMessage
-}
-    from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { onMounted } from 'vue'
 const formRef = ref()
 const data = reactive({

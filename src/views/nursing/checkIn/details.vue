@@ -147,7 +147,8 @@ const submitForm = () => {
         applyCheckIn(params).then(res => {
             if (res.code == 200) {
                 ElMessage({ type: 'success', message: '提交成功' })
-                router.push({path: '/enterQuit/checkIn'});//跳转到列表查询
+                //router.push({path: '/enterQuit/checkIn'});//跳转到列表查询
+                router.replace({path: '/enterQuit/checkIn', query: {refresh: Date.now()}});
             } else {
                 ElMessage({
                     type: 'error',

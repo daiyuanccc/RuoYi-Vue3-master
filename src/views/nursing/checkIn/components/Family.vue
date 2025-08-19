@@ -1,6 +1,6 @@
 <template>
     <div class="info family">
-        <h3>家属信息</h3>
+        <h3 class="section-title">家属信息</h3>
         <div class="tableHead">
             <div>家属姓名</div>
             <div>家属联系方式</div>
