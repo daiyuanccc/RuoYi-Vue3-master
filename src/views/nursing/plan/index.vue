@@ -141,6 +141,7 @@ import {
 } from '@/api/nursing/nursingPlan';
 import { getProjectAll } from '@/api/nursing/project';
 import { onMounted } from 'vue';
+import { onActivated } from 'vue'
 
 const { proxy } = getCurrentInstance();
 const { nursing_plan_status } = proxy.useDict('nursing_plan_status');
@@ -444,5 +445,15 @@ const handleLook = (row) => {
   getDetails(row.id);
 };
 getNursingPalnList();
+// 刷新
+onActivated(() => {
+  getNursingPalnList();
+  // 刷新项目列表
+  getProjectAll().then((response) => {
+    nursingProjectOptions.value = response.data;
+  });
+
+});
+
 </script>
 <style src="./index.scss" lang="scss"></style>

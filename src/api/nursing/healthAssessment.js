@@ -42,3 +42,14 @@ export function delHealthAssessment(id) {
     method: 'delete'
   })
 }
+
+// 在文件末尾添加
+// 新增健康评估（支持长等待的AI分析）
+export function addHealthAssessmentWithAI(data) {
+  return request({
+    url: '/nursing/healthAssessment',
+    method: 'post',
+    data: data,
+    timeout: 300000  // 5分钟超时
+  })
+}

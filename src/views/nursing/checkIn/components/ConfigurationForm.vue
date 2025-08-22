@@ -35,9 +35,9 @@
             </el-col>
             <el-col :span="12">
                 <el-form-item label="入住床位" prop="bed">
-                    <div v-if="type === 'read'">
+                    <el-tag v-if="type === 'read'" type="info" effect="plain" size="large">
                         {{ formData.bedNumber }}
-                    </div>
+                    </el-tag>
                     <el-cascader v-else v-model="formData.bed" :options="bedIdOptions" :props="bedProps"
                     @change="handleFloor"
                         :style="{ width: '100%' }" placeholder="请选择入住床位" clearable></el-cascader>

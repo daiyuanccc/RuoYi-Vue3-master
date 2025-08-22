@@ -90,7 +90,7 @@
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { ElRadioGroup, ElRadio } from 'element-plus'; // 添加这行导入语句
 import { listLevel, getLevel, delLevel, addLevel, updateLevel } from "@/api/nursing/level";
-import { listNursingPlan } from "@/api/nursing/nursingPlan";
+import { listNursingPlanAll } from "@/api/nursing/nursingPlan";
 const { proxy } = getCurrentInstance();
 const { nursing_plan_status } = proxy.useDict('nursing_plan_status');
 const levelList = ref([]);
@@ -248,10 +248,11 @@ const handleEnable = async (row) => {
 // 获取护理计划列表数据
 const getNursingPlanList = async () => {
   try {
-    const response = await listNursingPlan();
+    const response = await listNursingPlanAll();
+
     // API返回格式为 { code: 200, rows: [...] }
     if (response.code === 200) {
-      lplanList.value = response.rows;
+      lplanList.value = response.data;
       console.log(lplanList.value);
 
     } else {

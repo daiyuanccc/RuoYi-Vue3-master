@@ -8,6 +8,14 @@ export function listNursingPlan(query) {
     params: query
   })
 }
+// 查询所有护理计划
+export function listNursingPlanAll() {
+  return request({
+    url: '/nursing/plan/all',
+    method: 'get'
+  })
+}
+
 
 // 查询护理计划详细
 export function getNursingPlan(id) {
