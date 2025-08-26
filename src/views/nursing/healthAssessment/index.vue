@@ -400,9 +400,24 @@ function submitForm() {
       if (res.code === 200) {
         proxy.$modal.msgSuccess('体检报告分析完成');
         cancel();
-        proxy.$router.push({
+        // 刷新列表数据
+        getList();
+        /* proxy.$router.push({
           path: '/enterQuit/healthDetails',
           query: { id: res.data },
+        }); */
+        // 可选：如果需要查看详情，可以添加一个查看按钮
+        proxy.$modal.confirm('分析完成，是否查看详情？', '提示', {
+          confirmButtonText: '查看详情',
+          cancelButtonText: '留在列表',
+          type: 'success'
+        }).then(() => {
+          proxy.$router.push({
+            path: '/enterQuit/healthDetails',
+            query: { id: res.data },
+          });
+        }).catch(() => {
+          getList(); // 留在列表并刷新
         });
       }
     } catch (error) {
