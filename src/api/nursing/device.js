@@ -10,19 +10,17 @@ export function listDevice(query) {
 }
 
 // 查询设备详细
-export function getDevice(data) {
+export function getDevice(iotId) {
   return request({
-    url: '/nursing/device/queryDeviceDetail',
-    method: 'post',
-    data: data
+    url: `/nursing/device/queryDeviceDetail/${iotId}`,
+    method: 'get'
   })
 }
 // 详情运行状态事件管理-查看指定产品的已发布物模型中的功能定义详情
-export function getPublishedList(params) {
+export function getPublishedList(iotId) {
   return request({
-    url: '/nursing/device/queryThingModelPublished',
-    method: 'post',
-    data:params
+    url: '/nursing/device/queryServiceProperties/' + iotId,
+    method: 'get'
   })
 }
 // 详情运行状态状态的卡片-列表
@@ -30,7 +28,7 @@ export function getPropertyStatusList(params) {
   return request({
     url: '/nursing/device/queryDevicePropertyStatus',
     method: 'post',
-    data:params
+    data: params
   })
 }
 // 获取设备数据分页结果-查看数据
@@ -60,11 +58,10 @@ export function updateDevice(data) {
 }
 
 // 删除设备
-export function delDevice(params) {
+export function delDevice(iotId) {
   return request({
-    url: '/nursing/device',
-    method: 'delete',
-    data:params
+    url: `/nursing/device/${iotId}`,
+    method: 'delete'
   })
 }
 
@@ -77,7 +74,7 @@ export function syncProductList(id) {
 }
 
 // 查询产品列表
-export function allProduct(id) {
+export function allProduct() {
   return request({
     url: '/nursing/device/allProduct',
     method: 'get'

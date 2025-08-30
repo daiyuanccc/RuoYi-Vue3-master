@@ -1,116 +1,44 @@
 <template>
   <div class="app-container">
-    <el-form
-      :model="queryParams"
-      ref="queryRef"
-      :inline="true"
-      v-show="showSearch"
-      label-width="68px"
-    >
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="设备名称" prop="deviceName">
-        <el-input
-          v-model="queryParams.deviceName"
-          placeholder="请输入设备名称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
+        <el-input v-model="queryParams.deviceName" placeholder="请输入设备名称" clearable @keyup.enter="handleQuery" />
       </el-form-item>
-      <el-form-item label="产品key" prop="productKey">
-        <el-select
-          v-model="queryParams.productKey"
-          placeholder="请选择"
-          clearable
-        >
-          <el-option
-            v-for="item in options"
-            :key="item.productKey"
-            :label="item.productName"
-            :value="item.productKey"
-          />
+      <el-form-item label="产品名称" prop="productId">
+        <el-select v-model="queryParams.productId" placeholder="请选择" clearable>
+          <el-option v-for="item in options" :key="item.productId" :label="item.name" :value="item.productId" />
         </el-select>
       </el-form-item>
       <el-form-item label="设备类型" prop="locationType">
-        <el-select
-          v-model="queryParams.locationType"
-          placeholder="请选择"
-          clearable
-        >
-          <el-option
-            v-for="item in device_location_type"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
+        <el-select v-model="queryParams.locationType" placeholder="请选择" clearable>
+          <el-option v-for="item in device_location_type" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery"
-          >搜索</el-button
-        >
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery(queryRef)">重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="newBtn mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="RefreshRight"
-          @click="refreshProduct"
-          >同步数据</el-button
-        >
+        <el-button type="primary" plain icon="RefreshRight" @click="refreshProduct">同步数据</el-button>
       </el-col>
 
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          >新增</el-button
-        >
+        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
       </el-col>
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="deviceList"
-      @selection-change="handleSelectionChange"
-    >
+    <el-table v-loading="loading" :data="deviceList" @selection-change="handleSelectionChange">
       <el-table-column label="序号" type="index" align="center" width="55" />
-      <el-table-column
-        label="设备名称"
-        align="center"
-        prop="deviceName"
-        width="180"
-      />
-      <el-table-column
-        label="备注名称"
-        align="center"
-        prop="nickname"
-        width="180"
-      />
-      <el-table-column
-        label="产品名称"
-        align="center"
-        prop="productName"
-        width="150"
-      />
-      <el-table-column
-        label="接入位置"
-        align="center"
-        prop="remark"
-        width="180"
-      />
-      <el-table-column
-        label="设备类型"
-        align="center"
-        prop="locationType"
-        width="180"
-      >
+      <el-table-column label="设备名称" align="center" prop="deviceName" width="180" />
+      <el-table-column label="备注名称" align="center" prop="nickname" width="180" />
+      <el-table-column label="产品名称" align="center" prop="productName" width="150" />
+      <el-table-column label="接入位置" align="center" prop="remark" width="180" />
+      <el-table-column label="设备类型" align="center" prop="locationType" width="180">
         <template #default="scope">
-          {{ scope.row.locationType === 0 ? '固定设备' : '随身设备' }}
+          {{ scope.row.locationType === 1 ? '固定设备' : '随身设备' }}
         </template>
       </el-table-column>
 
@@ -121,137 +49,59 @@
           }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        fixed="right"
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-        width="200"
-      >
+      <el-table-column fixed="right" label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template #default="scope">
-          <el-button
-            link
-            type="danger"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
-            >删除</el-button
-          >
-          <el-button
-            link
-            type="primary"
-            icon="Edit"
-            @click="handleUpdate(scope.row)"
-            >编辑</el-button
-          >
-          <el-button
-            link
-            type="primary"
-            icon="ZoomIn"
-            @click="handleDetails(scope.row)"
-            >查看</el-button
-          >
+          <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button link type="primary" icon="ZoomIn" @click="handleDetails(scope.row)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total > 0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改设备对话框 -->
     <el-dialog :title="title" v-model="open" class="elDialogBox" append-to-body>
-      <el-form
-        ref="deviceRef"
-        :model="formData"
-        :rules="rules"
-        label-width="100px"
-      >
+      <el-form ref="deviceRef" :model="formData" :rules="rules" label-width="100px">
         <el-form-item label="设备名称：" prop="deviceName">
-          <el-input
-            v-model="formData.deviceName"
-            placeholder="请输入"
-            :maxlength="15"
-            show-word-limit
-            clearable
-            class="wt-400"
-            :disabled="
-              formData.id && formData.id !== undefined && formData.id !== ''
-            "
-          ></el-input>
+          <el-input v-model="formData.deviceName" placeholder="请输入" :maxlength="15" show-word-limit clearable
+            class="wt-400" :disabled="formData.id && formData.id !== undefined && formData.id !== ''
+              "></el-input>
         </el-form-item>
         <el-form-item label="备注名称：" prop="nickname">
-          <el-input
-            v-model="formData.nickname"
-            placeholder="请输入"
-            :maxlength="15"
-            show-word-limit
-            clearable
-            class="wt-400"
-          ></el-input>
+          <el-input v-model="formData.nickname" placeholder="请输入" :maxlength="15" show-word-limit clearable
+            class="wt-400"></el-input>
         </el-form-item>
-        <el-form-item label="所属产品：" prop="productKey">
-          <el-select
-            v-model="formData.productKey"
-            placeholder="请选择"
-            clearable
-            class="wt-400"
-            :disabled="
-              formData.id && formData.id !== undefined && formData.id !== ''
-            "
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.productKey"
-              :label="item.productName"
-              :value="item.productKey"
-            ></el-option>
+        <el-form-item label="所属产品：" prop="productId">
+          <el-select v-model="formData.productKey" placeholder="请选择" clearable class="wt-400" :disabled="formData.id && formData.id !== undefined && formData.id !== ''
+            ">
+            <el-option v-for="item in options" :key="item.productId" :label="item.name"
+              :value="item.productId"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="设备类型：" prop="locationType">
-          <el-radio-group
-            v-model="formData.locationType"
-            size="medium"
-            @change="handleRadio"
-          >
-            <el-radio
-              v-for="(item, index) in locationTypeOptions"
-              :key="index"
-              :label="item.id"
-              >{{ item.value }}</el-radio
-            >
+          <el-radio-group v-model="formData.locationType" size="medium" @change="handleRadio">
+            <el-radio v-for="(item, index) in locationTypeOptions" :key="index" :label="item.id">{{ item.value
+              }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item
-          v-if="formData.locationType === 0"
-          label="接入位置："
-          prop="name"
-        >
-          <el-input
-            v-model="formData.name"
-            placeholder="请选择"
-            :readonly="readonly"
-            @focus="selectFlavor"
-            @blur="outSelect"
-            class="wt-400"
-          >
+        <el-form-item v-if="formData.locationType === 0" label="接入位置：" prop="name">
+          <el-input v-model="formData.name" placeholder="请选择" :readonly="readonly" @focus="selectFlavor"
+            @blur="outSelect" class="wt-400">
             <template #suffix>
-              <el-icon v-if="mak"><ArrowUp /></el-icon>
-              <el-icon v-else><ArrowDown /></el-icon>
+              <el-icon v-if="mak">
+                <ArrowUp />
+              </el-icon>
+              <el-icon v-else>
+                <ArrowDown />
+              </el-icon>
             </template>
           </el-input>
         </el-form-item>
         <el-form-item v-else label="接入位置：" prop="localName">
-          <el-cascader
-            v-model="bedValue"
-            :options="floorData"
-            :props="{ checkStrictly: true }"
-            @change="handleFloor"
-            class="wt-400"
-          />
+          <el-cascader v-model="bedValue" :options="floorData" :props="{ checkStrictly: true }" @change="handleFloor"
+            class="wt-400" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -263,18 +113,10 @@
     </el-dialog>
     <!-- 选择老人弹窗 -->
     <!-- 老人选择弹层 -->
-    <OldManSelect
-      :dialog-visible="dialogOldVisible"
-      :dialog-data="listOldManData"
-      :pagination="paginationOld"
-      :formData="formData"
-      @handle-search="handleOldSearch"
-      @handle-reset="handleOldReset"
-      @handle-close-dialog="handleCloseDialog"
-      @get-current="getOldCurrent"
-      @handle-select-old="handleSelectOld"
-      @get-old-list="getOldList"
-    ></OldManSelect>
+    <OldManSelect :dialog-visible="dialogOldVisible" :dialog-data="listOldManData" :pagination="paginationOld"
+      :formData="formData" @handle-search="handleOldSearch" @handle-reset="handleOldReset"
+      @handle-close-dialog="handleCloseDialog" @get-current="getOldCurrent" @handle-select-old="handleSelectOld"
+      @get-old-list="getOldList"></OldManSelect>
     <!-- end -->
   </div>
 </template>
@@ -291,7 +133,7 @@ import {
 } from '@/api/nursing/device';
 import { listElderPageQuery } from '@/api/nursing/checkIn';
 import { getFloorBed } from '@/api/nursing/floor'
-import { onMounted, ref } from 'vue';
+import { onMounted, onActivated, ref } from 'vue';
 import { locationTypeOptions } from '@/utils/commonData';
 // 选择老人列表弹层
 import OldManSelect from './components/LookData.vue';
@@ -386,11 +228,15 @@ const { queryParams } = toRefs(data);
 //产品列表
 const options = ref([]);
 
-//组件挂载完成，自动同步产品列表
+//组件挂载完成，自动同步产品列表和加载设备数据
 onMounted(() => {
   refreshProduct();
+  getList(); // 添加这行，确保每次进入页面都重新加载设备数据
 });
-
+// 在onMounted后面添加
+onActivated(() => {
+  getList(); // 每次页面激活时重新加载数据
+});
 /** 查询设备列表 */
 function getList() {
   loading.value = true;
@@ -523,6 +369,7 @@ const refreshProduct = async () => {
       allProduct().then((res) => {
         if (res.code === 200) {
           options.value = res.data;
+          console.log('产品列表成功' + options.value);
           proxy.$modal.msgSuccess('同步产品列表成功');
         } else {
           proxy.$modal.msgError('同步产品列表失败');
@@ -544,11 +391,7 @@ function handleAdd() {
 function handleUpdate(row) {
   getAllFloorList();
   reset();
-  const params = {
-    iotId: row.iotId,
-    productKey: row.productKey,
-  };
-  getDevice(params).then((response) => {
+  getDevice(row.iotId).then((response) => {
     const data = response.data;
     formData.value = data;
 
@@ -570,15 +413,22 @@ function submitForm() {
   proxy.$refs['deviceRef'].validate((valid) => {
     if (valid) {
       const data = formData.value;
+
+      // 根据productKey查找对应的产品名称
+      const selectedProduct = options.value.find(item => item.productId === data.productKey);
+      const productName = selectedProduct ? selectedProduct.name : '';
+
       let params = {
         deviceName: data.deviceName,
         locationType: data.locationType,
         nickname: data.nickname,
         productKey: data.productKey,
+        productName: productName, // 添加产品名称
         registerDeviceRequest: {
           deviceName: data.deviceName,
           nickname: data.nickname,
           productKey: data.productKey,
+          productName: productName, // 添加产品名称到注册请求
         },
       };
       // 如果选择的接入类别是1，需要传楼层房间id
@@ -627,17 +477,14 @@ function handleDelete(row) {
   proxy.$modal
     .confirm('是否确认删除设备编号为"' + _ids + '"的数据项？')
     .then(function async() {
-      const params = {
-        iotId: row.iotId,
-        productKey: row.productKey,
-      };
-      delDevice(params)
+      // 直接传递iotId作为参数
+      return delDevice(row.iotId)
     })
     .then(() => {
       setTime()
       proxy.$modal.msgSuccess('删除成功');
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 // 增删改查1秒钟后刷新列表，因为阿里云创建设备有延时
 const setTime = () => {
@@ -645,7 +492,7 @@ const setTime = () => {
     getList()
     clearTimeout(time)
   }, 1000)
-  
+
 }
 /** 导出按钮操作 */
 function handleExport() {
@@ -658,7 +505,6 @@ function handleExport() {
   );
 }
 
-getList();
 // 获取楼层，房间床位
 const getAllFloorList = async () => {
   const res = await getFloorBed(1);
@@ -708,8 +554,8 @@ const outSelect = () => {
 const handleRadio = (value) => {
   const data = formData.value;
   const oldData = formOldData.value;
-  console.log(oldData,1);
-  console.log(data,2);
+  console.log(oldData, 1);
+  console.log(data, 2);
   // // 如果接入类型选择的是位置，需要把老人的选项内容清掉
   if (data.locationType === 1) {
     // 获取详情要回显的数据
@@ -733,6 +579,7 @@ const handleRadio = (value) => {
 };
 // 去详情页
 const handleDetails = (row) => {
+  console.log(row.iotId);
   router.push({
     path: '/intelligence/details',
     query: { iotId: row.iotId, productKey: row.productKey },
@@ -740,18 +587,20 @@ const handleDetails = (row) => {
 };
 </script>
 <style rel="stylesheet/scss">
-    .el-cascader-panel .el-radio{
-        width: 100%;
-        height: 100%;
-        z-index: 10;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    }
-    .el-cascader-panel .el-radio__input{
-        visibility: hidden;
-    }
-    .el-cascader-panel .el-cascader-node__postfix {
-        top: 10px;
-    }
+.el-cascader-panel .el-radio {
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.el-cascader-panel .el-radio__input {
+  visibility: hidden;
+}
+
+.el-cascader-panel .el-cascader-node__postfix {
+  top: 10px;
+}
 </style>
