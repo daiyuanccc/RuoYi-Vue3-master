@@ -64,10 +64,6 @@
                 baseData.locationType === 0 ? '随身设备' : '固定设备'
               }}</span>
             </div>
-            <!-- <div class="info-item">
-              <h1>地域：</h1>
-              <span>{{ baseData.region }}</span>
-            </div> -->
             <div class="info-item">
               <h1>节点类型：</h1>
               <span>{{ baseData.nodeType === 0 ? '直连设备' : '网关' }}</span>
@@ -96,7 +92,7 @@
             </div>
             <div class="info-item">
               <h1>激活时间：</h1>
-              <span>{{ baseData.activeTime ? baseData.gmtActive : '--' }}</span>
+              <span>{{ baseData.activeTime ? baseData.activeTime : '--' }}</span>
             </div>
           </div>
         </el-card>
@@ -254,8 +250,9 @@ const getPublished = async (val) => {
   const res = await getPublishedList(val.iotId); // 获取列表数据
   if (res.code === 200) {
     // 确保后端返回的数据格式正确
-    const data = JSON.parse(res.data.thingModelJson);
-    itemData.value = data.functionBlocks;
+    //const data = JSON.parse(res.data.thingModelJson);
+    //itemData.value = data.functionBlocks;
+    itemData.value = res.data.functionBlocks || [];
     // 获取运行状态的接口
     getPropertyStatus(val);
   }
@@ -268,11 +265,46 @@ const getPropertyStatus = async (basedata) => {
     productKey: productKey.value,
     iotId: basedata.iotId,
   };
-  const res = await getPropertyStatusList(statusObj.value); // 获取列表数据
-  if (res.code === 200) {
-    const data = res.data.list.propertyStatusInfo;
-    publishedData.value = data;
+  try {
+    const res = await getPropertyStatusList(statusObj.value); // 获取列表数据
+    if (res.code === 200) {
+      console.log('物理模型数据:', res.data);
+      // 处理数据格式映射
+      let data = res.data || [];
+      
+      // 确保数据是数组
+      if (!Array.isArray(data)) {
+        data = [data];
+      }
+      
+      // 映射字段名以匹配前端期望的格式
+      publishedData.value = data.map(item => ({
+        identifier: item.functionId || item.identifier,
+        name: getFunctionName(item.functionId || item.identifier) || item.name || '未知功能',
+        time: item.eventTime || item.time,
+        value: item.value
+      }));
+      
+      console.log('映射后的数据:', publishedData.value);
+    } else {
+      console.error('获取物理模型数据失败:', res.msg);
+      publishedData.value = [];
+    }
+  } catch (error) {
+    console.error('获取物理模型数据异常:', error);
+    publishedData.value = [];
   }
+};
+
+// 根据功能ID获取对应的中文名称
+const getFunctionName = (functionId) => {
+  const nameMap = {
+    'BodyTemp': '体温',
+    'HeartRate': '心率',
+    'xueyang': '血氧',
+    'BatteryPercentage': '电池电量'
+  };
+  return nameMap[functionId] || functionId;
 };
 // 获取运行状态列表的查看数据
 const getLookList = async (val) => {
@@ -375,10 +407,10 @@ const getCurrent = (val) => {
 };
 // 返回
 const handleReturn = () => {
-  //router.go(-1);
-  router.replace({
-    path: '/nursing/device',
-  });
+  router.go(-1);
+  // router.replace({
+  //   path: '/nursing/device',
+  // });
 };
 </script>
 <style lang="scss" scoped src="./index.scss"></style>

@@ -234,9 +234,15 @@ onMounted(() => {
   getList(); // 添加这行，确保每次进入页面都重新加载设备数据
 });
 // 在onMounted后面添加
-onActivated(() => {
-  getList(); // 每次页面激活时重新加载数据
-});
+// onActivated(() => {
+//   getList(); // 每次页面激活时重新加载数据
+//   // 当组件被激活时（从缓存中恢复），重新获取数据
+//   if (route.query.iotId) {
+//     iotId.value = route.query.iotId;
+//     productKey.value = route.query.productKey;
+//     getDetails();
+//   }
+// });
 /** 查询设备列表 */
 function getList() {
   loading.value = true;

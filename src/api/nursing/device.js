@@ -16,19 +16,27 @@ export function getDevice(iotId) {
     method: 'get'
   })
 }
+
+// 查询设备的属性数据
+export function queryServiceProperties (iotId) {
+  return request({
+    url: `/nursing/device/queryServiceProperties/${iotId}`,
+    method: 'get'
+  })
+}
+
 // 详情运行状态事件管理-查看指定产品的已发布物模型中的功能定义详情
 export function getPublishedList(iotId) {
   return request({
-    url: '/nursing/device/queryServiceProperties/' + iotId,
+    url: '/nursing/device/queryDeviceDetail/' + iotId,
     method: 'get'
   })
 }
 // 详情运行状态状态的卡片-列表
 export function getPropertyStatusList(params) {
   return request({
-    url: '/nursing/device/queryDevicePropertyStatus',
-    method: 'post',
-    data: params
+    url: '/nursing/device/queryServiceProperties/' + params.iotId,
+    method: 'get'
   })
 }
 // 获取设备数据分页结果-查看数据
